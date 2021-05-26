@@ -12,6 +12,15 @@ namespace RockPaperScissors.Frontends
             _outputProvider = outputProvider;
         }
 
+        public void WriteManual()
+        {
+            _outputProvider.Write("Welcome to Scissors Paper Rock the game!");
+            _outputProvider.Write("Rules:");
+            _outputProvider.Write("Paper beats Rock");
+            _outputProvider.Write("Rock beats Scissors");
+            _outputProvider.Write("Scissors beats Paper");
+            _outputProvider.Write();
+        }
 
         public void WriteRoundResult(Player player1, Player player2, RoundResult roundResult)
         {

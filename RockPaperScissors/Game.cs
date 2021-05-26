@@ -72,6 +72,8 @@ namespace RockPaperScissors
 
         public void Play()
         {
+            _frontend.WriteManual();
+
             while (true)
             {
                 var roundResult = NextRound();
