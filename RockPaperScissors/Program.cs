@@ -1,7 +1,9 @@
-﻿using RockPaperScissors.Players;
+﻿using RockPaperScissors.Frontends;
+using RockPaperScissors.Frontends.OutputProviders;
+using RockPaperScissors.Players;
+using RockPaperScissors.Players.InputProviders;
 using RockPaperScissors.Rules;
 using System;
-using System.Collections.Generic;
 
 namespace RockPaperScissors
 {
@@ -16,41 +18,38 @@ namespace RockPaperScissors
             Console.WriteLine("Scissors beats Paper");
             Console.WriteLine();
 
-            var rules = new RuleSet(new Dictionary<GameSign, GameSign>()
-            {
-                { GameSign.Paper, GameSign.Rock },
-                { GameSign.Rock, GameSign.Scissors },
-                { GameSign.Scissors, GameSign.Paper }
-            });
+            //For more sophisticated solutions a dependency injection would be setup and used
+            var humanPlayer = new Player(new ConsoleInputProvider(), "Human");
+            var aiPlayer = new Player(new RandomInputProvider(), "AI");
+            var outputProvider = new ConsoleOutputProvider();
+            var frontend = new ConsoleFrontend(outputProvider);
 
-            var humanPlayer = new Player(new Players.InputProviders.ConsoleInputProvider(), "Human");
-            var aiPlayer = new Player(new Players.InputProviders.RandomInputProvider(), "AI");
+            IGame game = new Game(frontend, humanPlayer, aiPlayer, RuleSet.DefaultRuleSet);
+            game.Play();
 
-            var game = new Game(humanPlayer, aiPlayer, rules);
+            //while (true)
+            //{
+            //    var roundResult = game.NextRound();
+            //    if (roundResult.Winner != null)
+            //    {
+            //        Console.WriteLine($"{humanPlayer.Name}: {roundResult.Player1Sign}");
+            //        Console.WriteLine($"{aiPlayer.Name}: {roundResult.Player2Sign}");
+            //        Console.WriteLine($"Winner: {roundResult.Winner.Name}");
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine($"{roundResult.Player1Sign} = {roundResult.Player2Sign}: Draw");
+            //    }
+            //    Console.WriteLine($"{humanPlayer.Name} {humanPlayer.Score} : {aiPlayer.Score} {aiPlayer.Name}");
+            //    Console.WriteLine();
 
-            while (true)
-            {
-                var roundResult = game.NextRound();
-                if (roundResult.Winner != null)
-                {
-                    Console.WriteLine($"{humanPlayer.Name}: {roundResult.Player1Sign}");
-                    Console.WriteLine($"{aiPlayer.Name}: {roundResult.Player2Sign}");
-                    Console.WriteLine($"Winner: {roundResult.Winner.Name}");
-                }
-                else
-                {
-                    Console.WriteLine($"{roundResult.Player1Sign} = {roundResult.Player2Sign}: Draw");
-                }
-                Console.WriteLine($"{humanPlayer.Name} {humanPlayer.Score} : {aiPlayer.Score} {aiPlayer.Name}");
-                Console.WriteLine();
-
-                var gameWinner = game.GetWinner();
-                if (gameWinner != null)
-                {
-                    Console.WriteLine($"{gameWinner.Name} won the game!");
-                    return;
-                }
-            }
+            //    var gameWinner = game.GetWinner();
+            //    if (gameWinner != null)
+            //    {
+            //        Console.WriteLine($"{gameWinner.Name} won the game!");
+            //        return;
+            //    }
+            //}
         }
     }
 }

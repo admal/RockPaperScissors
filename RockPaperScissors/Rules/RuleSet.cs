@@ -6,6 +6,13 @@ namespace RockPaperScissors.Rules
     {
         private IDictionary<GameSign, GameSign> _rules;
 
+        public static RuleSet DefaultRuleSet => new RuleSet(new Dictionary<GameSign, GameSign>()
+            {
+                { GameSign.Paper, GameSign.Rock },
+                { GameSign.Rock, GameSign.Scissors },
+                { GameSign.Scissors, GameSign.Paper }
+            });
+
         public RuleSet(IDictionary<GameSign, GameSign> rules)
         {
             _rules = rules;

@@ -1,31 +1,29 @@
-﻿using RockPaperScissors.Players;
+﻿using RockPaperScissors.Frontends;
+using RockPaperScissors.Players;
 using RockPaperScissors.Rules;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace RockPaperScissors
 {
-    public class RoundResult
+    public interface IGame
     {
-        public Player Winner { get; set; }
-        public GameSign Player1Sign { get; set; }
-        public GameSign Player2Sign { get; set; }
+        void Play();
     }
 
-    public class Game
+    public class Game : IGame
     {
-        private Player _player1;
-        private Player _player2;
-        private RuleSet _rules;
-        private int _roundsToWin;
+        private readonly Player _player1;
+        private readonly Player _player2;
+        private readonly RuleSet _rules;
+        private readonly int _roundsToWin;
+        private readonly IFrontend _frontend;
 
-        public Game(Player player1, Player player2, RuleSet rules, int roundsToWin = 2)
+        public Game(IFrontend frontend, Player player1, Player player2, RuleSet rules, int roundsToWin = 2)
         {
             _player1 = player1;
             _player2 = player2;
             _rules = rules;
             _roundsToWin = roundsToWin;
+            _frontend = frontend;
         }
 
         public RoundResult NextRound()
@@ -70,6 +68,22 @@ namespace RockPaperScissors
             }
 
             return null;
+        }
+
+        public void Play()
+        {
+            while (true)
+            {
+                var roundResult = NextRound();
+                _frontend.WriteRoundResult(_player1, _player2, roundResult);
+
+                var gameWinner = GetWinner();
+                if (gameWinner != null)
+                {
+                    _frontend.WriteWinner(gameWinner);
+                    return;
+                }
+            }
         }
     }
 }

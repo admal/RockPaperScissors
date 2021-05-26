@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using RockPaperScissors.Frontends;
 using RockPaperScissors.Players;
 using RockPaperScissors.Rules;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ namespace RockPaperScissors.Tests
     public class GameTests
     {
         private RuleSet _rules;
+        private Mock<IFrontend> _frontendMock;
 
         private const string Player1Name = "Player1";
         private const string Player2Name = "Player2";
@@ -22,6 +25,8 @@ namespace RockPaperScissors.Tests
                 { GameSign.Rock, GameSign.Scissors },
                 { GameSign.Scissors, GameSign.Paper }
             });
+
+            _frontendMock = new Mock<IFrontend>();
         }
 
         [TestMethod]
@@ -31,15 +36,15 @@ namespace RockPaperScissors.Tests
         public void TestRound(GameSign player1Sign, GameSign player2Sign, string expectedWinnerName)
         {
             //arrange
-            var inputProvider1Mock = new Moq.Mock<Players.InputProviders.IInputProvider>();
+            var inputProvider1Mock = new Mock<Players.InputProviders.IInputProvider>();
             inputProvider1Mock.Setup(x => x.NextInput()).Returns(player1Sign);
 
-            var inputProvider2Mock = new Moq.Mock<Players.InputProviders.IInputProvider>();
+            var inputProvider2Mock = new Mock<Players.InputProviders.IInputProvider>();
             inputProvider2Mock.Setup(x => x.NextInput()).Returns(player2Sign);
 
             var player1 = new Player(inputProvider1Mock.Object, Player1Name);
             var player2 = new Player(inputProvider2Mock.Object, Player2Name);
-            var game = new Game(player1, player2, _rules);
+            var game = new Game(_frontendMock.Object, player1, player2, _rules);
 
             //act
             var result = game.NextRound();
@@ -69,19 +74,44 @@ namespace RockPaperScissors.Tests
         {
             //arrange
             var roundsToWin = 2;
-            var inputProvider1Mock = new Moq.Mock<Players.InputProviders.IInputProvider>();
+            var inputProvider1Mock = new Mock<Players.InputProviders.IInputProvider>();
             inputProvider1Mock.Setup(x => x.NextInput()).Returns(GameSign.Paper);
 
-            var inputProvider2Mock = new Moq.Mock<Players.InputProviders.IInputProvider>();
+            var inputProvider2Mock = new Mock<Players.InputProviders.IInputProvider>();
             inputProvider2Mock.Setup(x => x.NextInput()).Returns(GameSign.Rock);
 
             var player1 = new Player(inputProvider1Mock.Object, Player1Name);
             var player2 = new Player(inputProvider2Mock.Object, Player2Name);
-            var game = new Game(player1, player2, _rules, roundsToWin);
+            var game = new Game(_frontendMock.Object, player1, player2, _rules, roundsToWin);
 
             //act
             game.NextRound();
             game.NextRound();
+
+            var gameWinner = game.GetWinner();
+
+            //assert
+            Assert.AreEqual(gameWinner.Name, Player1Name);
+            Assert.AreEqual(gameWinner.Score, roundsToWin);
+        }
+
+        [TestMethod]
+        public void GameLoopTest()
+        {
+            //arrange
+            var roundsToWin = 2;
+            var inputProvider1Mock = new Mock<Players.InputProviders.IInputProvider>();
+            inputProvider1Mock.Setup(x => x.NextInput()).Returns(GameSign.Paper);
+
+            var inputProvider2Mock = new Mock<Players.InputProviders.IInputProvider>();
+            inputProvider2Mock.Setup(x => x.NextInput()).Returns(GameSign.Rock);
+
+            var player1 = new Player(inputProvider1Mock.Object, Player1Name);
+            var player2 = new Player(inputProvider2Mock.Object, Player2Name);
+            var game = new Game(_frontendMock.Object, player1, player2, _rules, roundsToWin);
+
+            //act
+            game.Play();
 
             var gameWinner = game.GetWinner();
 
